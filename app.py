@@ -1,6 +1,5 @@
-import json 
-
-from flask import Flask, request, make_response, jsonify, abort
+import json  
+from flask import Flask, request, make_response, jsonify, abort, render_template
 from flask_cors import CORS, cross_origin
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -18,7 +17,7 @@ class User(object):
 
     @staticmethod
     def from_dict(source):
-        return User(source,username, source.password, source.email)
+        return User(source.username, source.password, source.email)
 
     def to_dict(self):
         return{
@@ -40,20 +39,20 @@ jade = User(u'jade1905', u'123456', u'jadesanche2005.com')
 
 CORS(app, resources=r'/api/*')
 
-cred = credentials.Certificate("sign-in-mental-health-firebase-adminsdk-hk8d1-f27c785d77.json")
+cred = credentials.Certificate("sign-in-mental-health-firebase-adminsdk-hk8d1-4267dcec2f.json")
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 @app.route('/')
 def hello_world():
-    return "hello"
+    return render_template('index.html')
 
 
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not Founder L'}), 404)
 
-@app.route('/api/check_user', methods=["GET"])
+@app.route('/api/check_user', methods=["POST"])
 def get_user():
     input_json = request.get_json(force=True)
     print(input_json)
@@ -71,9 +70,8 @@ def get_user():
         }    
 
 
-
+#@app.route('/health_diagnosis')
+#def health_diagnosis()  
 
 if __name__ == '__main__':
     app.run()
-
-
