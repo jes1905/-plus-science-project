@@ -7,7 +7,7 @@ from firebase_admin import credentials, firestore
 
 app = Flask(__name__)
 
-
+#make a class function file
 class User(object):
     def __init__(self,username,password,email):
         self.username = username
@@ -70,8 +70,9 @@ def get_user():
         }    
 
 
-#@app.route('/health_diagnosis')
-#def health_diagnosis()  
+# @app.route('/health_diagnosis')
+# def health_diagnosis():
+     
 
 if __name__ == '__main__':
     app.run()
