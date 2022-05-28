@@ -2,8 +2,10 @@ import json
 from flask import Flask, request, make_response, jsonify, abort, render_template
 from flask_cors import CORS, cross_origin
 import firebase_admin
-from firebase_admin import credentials, firestore
+from firebase_admin import credentials, firestore, db
 #import cv2
+
+#remeber to remove key
 
 app = Flask(__name__)
 
@@ -40,8 +42,15 @@ jade = User(u'jade1905', u'123456', u'jadesanche2005.com')
 CORS(app, resources=r'/api/*')
 
 cred = credentials.Certificate("sign-in-mental-health-firebase-adminsdk-hk8d1-4267dcec2f.json")
-firebase_admin.initialize_app(cred)
+default_app = firebase_admin.initialize_app(cred, {
+    'databaseURL' = https://console.firebase.google.com/u/0/project/sign-in-mental-health/firestore/data/~2FUsers~2FUser}
+    )
 db = firestore.client()
+
+##cred_obj = firebase_admin.credentials.Certificate('sign-in-mental-health-firebase-adminsdk-hk8d1-4267dcec2f.json')
+#default_app = firebase_admin.initialize_app(cred_object, {
+#	'databaseURL':https://console.firebase.google.com/u/0/project/sign-in-mental-health/firestore/data/~2FUsers~2FUser
+#	})
 
 @app.route('/')
 def hello_world():
@@ -70,8 +79,14 @@ def get_user():
         }    
 
 
-# @app.route('/health_diagnosis')
-# def health_diagnosis():
+@app.route('api/journal', methods=["GET"])
+def journal():
+    input_json = request.get_json(force=True)
+    
+
+#@app.route('/health_diagnosis')
+#def health_diagnosis():
+    
      
 
 if __name__ == '__main__':
