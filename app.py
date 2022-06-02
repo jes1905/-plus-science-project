@@ -2,7 +2,7 @@ import json
 from flask import Flask, request, make_response, jsonify, abort, render_template
 from flask_cors import CORS, cross_origin
 import firebase_admin
-from firebase_admin import credentials, firestore, db
+from firebase_admin import credentials, firestore
 #import cv2
 
 #remeber to remove key
@@ -42,15 +42,8 @@ jade = User(u'jade1905', u'123456', u'jadesanche2005.com')
 CORS(app, resources=r'/api/*')
 
 cred = credentials.Certificate("sign-in-mental-health-firebase-adminsdk-hk8d1-4267dcec2f.json")
-default_app = firebase_admin.initialize_app(cred, {
-    'databaseURL' = https://console.firebase.google.com/u/0/project/sign-in-mental-health/firestore/data/~2FUsers~2FUser}
-    )
+firebase_admin.initialize_app(cred)
 db = firestore.client()
-
-##cred_obj = firebase_admin.credentials.Certificate('sign-in-mental-health-firebase-adminsdk-hk8d1-4267dcec2f.json')
-#default_app = firebase_admin.initialize_app(cred_object, {
-#	'databaseURL':https://console.firebase.google.com/u/0/project/sign-in-mental-health/firestore/data/~2FUsers~2FUser
-#	})
 
 @app.route('/')
 def hello_world():
@@ -61,13 +54,13 @@ def hello_world():
 def not_found(error):
     return make_response(jsonify({'error': 'Not Founder L'}), 404)
 
-@app.route('/api/check_user', methods=["POST"])
+@app.route('/api/check_user', methods=["GET"])
 def get_user():
     input_json = request.get_json(force=True)
     print(input_json)
     user = User(input_json['Username'], input_json['Password'], input_json['Email'])
     user_ref = db.collection(u'User').document(user.username).get().to_dict()
-    if user_ref['Email'] == user.email and user_ref['Password'] == user.password:
+    if user_ref['Email'] == db.collection(u'User').document(user.email) and user_ref['Password'] == db.collection(u'User').document(user.password):
         return{
             "Status" : "Success",
             "User"   : user_ref
@@ -79,10 +72,8 @@ def get_user():
         }    
 
 
-@app.route('api/journal', methods=["GET"])
-def journal():
-    input_json = request.get_json(force=True)
-    
+
+
 
 #@app.route('/health_diagnosis')
 #def health_diagnosis():
