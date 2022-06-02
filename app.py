@@ -3,7 +3,7 @@ from flask import Flask, request, make_response, jsonify, abort, render_template
 from flask_cors import CORS, cross_origin
 import firebase_admin
 from firebase_admin import credentials, firestore
-#import cv2
+import cv2
 
 #remeber to remove key
 
@@ -37,7 +37,14 @@ class User(object):
                 )'
         )
 
+    def createUserDocument(self.username, self.password, self.EMAIl):
+        user = User(username,email,password)
+        createUserDocument(user.username,user.email,user.password)
+
+
+
 jade = User(u'jade1905', u'123456', u'jadesanche2005.com')
+
 
 CORS(app, resources=r'/api/*')
 
@@ -53,6 +60,7 @@ def hello_world():
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not Founder L'}), 404)
+
 
 @app.route('/api/check_user', methods=["GET"])
 def get_user():
