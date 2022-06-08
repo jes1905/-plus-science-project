@@ -3,7 +3,7 @@ from flask import Flask, request, make_response, jsonify, abort, render_template
 from flask_cors import CORS, cross_origin
 import firebase_admin
 from firebase_admin import credentials, firestore
-import cv2
+#import cv2
 
 #remeber to remove key
 
@@ -11,13 +11,17 @@ app = Flask(__name__)
 
 
 def get_user(user):
-    user = User(input_json['Username'], input_json['Password'], input_json['Email'])
     user_ref = db.collection(u'User').document(user.username).get().to_dict()
     if user_ref['Email'] == db.collection(u'User').document(user.EMAIL) and user_ref['Password'] == db.collection(u'User').document(user.password):
         return True
     else:
         return False
-        
+
+def makeDocument(self):
+    user_ref = db.collection(u'User')
+    user_ref = db.document(user.username).set(user.to_dict())
+    self.isLoggedIn = True
+    self.hasDocument = True        
         
 #make a class function file
 class User(object):
@@ -26,15 +30,15 @@ class User(object):
         self.password = password
         #should stay constant
         self.EMAIL = email
-        self.isLoggedIn = isLoggedIn
+        self.isLoggedIn = isLoggedIn #name error
         self.hasDocument = get_user(self)
         
         
-    if self.isLoggedIn:
-        self.hasDocument = True if get_user(self) else self.makeDocument()
+        if self.isLoggedIn:
+            self.hasDocument = True if get_user(self) else self.makeDocument()
         
-    else:
-        self.isLoggedIn = False
+        else:
+            self.isLoggedIn = False
 
     @staticmethod
     def from_dict(source):
@@ -47,11 +51,7 @@ class User(object):
             u'Email' : self.EMAIL 
         }
 
-    def makeDocument(self):
-        user_ref = db.collection(u'User')
-        user_ref = db.document(user.username).set(user.to_dict())
-        self.isLoggedIn = True
-        self.hasDocument = True
+    
 
 
     def __repr__(self):
@@ -111,7 +111,10 @@ def get_user():
         
     #   
 
-@app.route('')
+@app.route('/user_data')
+def user_data():
+    #user = User(u'Username', u'')
+    return user_ref
 
 
 
