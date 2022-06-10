@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %} Login/Sign up {% endblock %}
+{% block logIn %}
+    Login
+{% endblock %}
+{% block content %}
+    <div id="loginDiv">
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+
+        <!-- Pills navs -->
+        <ul class="nav nav-pills nav-justified mb-3" id="ex1" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="tab-login" data-toggle="pill" href="#pills-login" role="tab"
+                   aria-controls="pills-login" aria-selected="true">Login</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="tab-register" data-toggle="pill" href="#pills-register" role="tab"
+                   aria-controls="pills-register" aria-selected="false">Register</a>
+            </li>
+        </ul>
+        <!-- Pills navs -->
+
+        <!-- Pills content -->
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="pills-login" role="tabpanel" aria-labelledby="tab-login">
+                <form>
+                    <div class="text-center mb-3">
+                        <p>Sign in:</p>
+
+
+                        <!-- Email input -->
+                        <div class="form-outline mb-4">
+                            <input type="username" id="loginName" class="form-control"/>
+                            <label class="form-label" for="loginName">Email or username</label>
+                        </div>
+
+                        <!-- Password input -->
+                        <div class="form-outline mb-4">
+                            <input type="password" id="loginPassword" class="form-control"/>
+                            <label class="form-label" for="loginPassword">Password</label>
+                        </div>
+
+                        <!-- 2 column grid layout -->
+                        <div class="row mb-4">
+                            <div class="col-md-6 d-flex justify-content-center">
+                                <!-- Checkbox -->
+                                <div class="form-check mb-3 mb-md-0">
+                                    <input class="form-check-input" type="checkbox" value="" id="loginCheck" checked/>
+                                    <label class="form-check-label" for="loginCheck"> Remember me </label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 d-flex justify-content-center">
+                                <!-- Simple link -->
+                                <a href="#!">Forgot password?</a>
+                            </div>
+                        </div>
+
+                        <!-- Submit button -->
+{#                        <a href="loginUser">#}
+                            <button id="login" type="submit" class="btn btn-primary btn-block mb-4">Sign in</button>
+{#                        </a>#}
+
+                        <!-- Register buttons -->
+                        <div class="text-center">
+                            <p>Not a member? <a href="#pills-register">Register</a></p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="tab-pane fade" id="pills-register" role="tabpanel" aria-labelledby="tab-register">
+                <form>
+                    <div class="text-center mb-3">
+                        <p>Sign up:</p>
+
+                        <!-- Username input -->
+                        <div class="form-outline mb-4">
+                            <input type="text" id="registerUsername" class="form-control"/>
+                            <label class="form-label" for="registerUsername">Username</label>
+                        </div>
+
+                        <!-- Email input -->
+                        <div class="form-outline mb-4">
+                            <input type="email" id="registerEmail" class="form-control"/>
+                            <label class="form-label" for="registerEmail">Email</label>
+                        </div>
+
+                        <!-- Password input -->
+                        <div class="form-outline mb-4">
+                            <input type="password" id="registerPassword" class="form-control"/>
+                            <label class="form-label" for="registerPassword">Password</label>
+                        </div>
+
+                        <!-- Repeat Password input -->
+                        <div class="form-outline mb-4">
+                            <input type="password" id="registerRepeatPassword" class="form-control"/>
+                            <label class="form-label" for="registerRepeatPassword">Repeat password</label>
+                        </div>
+
+                        <!-- Checkbox -->
+                        {#                        <div class="form-check d-flex justify-content-center mb-4">#}
+                        {#                            <input class="form-check-input me-2" type="checkbox" value="" id="registerCheck" checked#}
+                        {#                                   aria-describedby="registerCheckHelpText"/>#}
+                        {#                            <label class="form-check-label" for="registerCheck">#}
+                        {#                                I have read and agree to the terms#}
+                        {#                            </label>#}
+                        {#                        </div>#}
+
+                        <!-- Submit button -->
+                        <div id="errorDiv"></div>
+                        <a href="signUp" id="signup">
+                            <button type="submit" class="btn btn-primary btn-block mb-3">Sign in</button>
+                        </a>
+                    </div>
+                </form>
+            </div>
+            <!-- Pills content -->
+        </div>
+    </div>
+            <script type=text/javascript>
+             async function signUpUser(){
+                const response = await fetch("http://127.0.0.1:5000/createUser",
+                    {
+                        method : 'POST',
+                        mode : 'cors',
+                        cache : 'no-cache',
+                        body : JSON.stringify({
+                            "username" : document.getElementById("registerUsername").value,
+                            "password" : document.getElementById("registerPassword").value,
+                            "email"    : document.getElementById("registerEmail").value
+                        })
+                    })
+                console.log(response)
+                return response.json();
+            }
+
+            function checkInputs(){
+                 let username = document.getElementById("registerUsername").value;
+                 let email = document.getElementById("registerEmail").value;
+                 let pass1 = document.getElementById("registerPassword").value;
+                 let pass2 = document.getElementById("registerRepeatPassword").value;
+                 let tempArr = [username,email,pass1,pass2];
+                 for(val of tempArr){
+                     if(val.length == 0)
+                         return false;
+                 }
+                 return pass1 != pass2 ? false : true;
+
+            }
+
+            let signup = document.getElementById("signup");
+            signup.onclick = (e) => {
+                e.preventDefault();
+                if(checkInputs()) {
+                    signUpUser()
+                        .then(data => {
+                            if (data.Status == "Success") {
+                                window.location.replace("http://127.0.0.1:5000/")
+                            }
+                        });
+                }
+                else{
+                    let errorDiv = document.getElementById('errorDiv');
+                    if(errorDiv.innerText == "")
+                        errorDiv.innerText = "Error: Check the info you put in";
+                }
+            }
+        </script>
+        <script type=text/javascript>
+            async function loginUser(){
+                const response = await fetch("http://127.0.0.1:5000/loginUser",
+                    {
+                        method : 'POST',
+                        mode : 'cors',
+                        cache : 'no-cache',
+                        body : JSON.stringify({
+                            "username" : document.getElementById("loginName").value,
+                            "password" : document.getElementById("loginPassword").value
+                        })
+                    })
+                console.log(response)
+                return response.json();
+            }
+
+            let login = document.getElementById("login");
+            login.onclick = (e) => {
+                e.preventDefault();
+                loginUser()
+                .then(data => {
+                if(data.Status == "Success"){
+                    window.location.replace("http://127.0.0.1:5000/")
+                }
+            });
+            }
+        </script>
+{% endblock %}
