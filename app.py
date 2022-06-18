@@ -10,7 +10,6 @@ from methods import *
 camera = cv2.VideoCapture(0)
 
 #remeber to remove key
-
 app = Flask(__name__)
 
 userCookie = Cookie.SimpleCookie()
@@ -18,7 +17,6 @@ sessionId = genSessionId()
 userCookie["session"] = sessionId
 CORS(app, resources=r'/api/*')
 userLoggedIn = False
-
 
 
 @app.route('/')
@@ -49,20 +47,26 @@ def deleteUserCookie():
     global userLoggedIn
     userLoggedIn = False
 
-@app.route('/testingRoute', methods=['GET','POST'])
+@app.route('/aiPage', methods=['GET','POST'])
 def testing():
-    if request.method == 'GET':
-        return render_template("AIPage.html",result={},loggedIn = userLoggedIn)
-    else:
-        data = detect_faces(getFrame(camera))
-        return data #,loggedIn = userLoggedIn)
+    return render_template("AIPage.html",result={},loggedIn = userLoggedIn)
+
 
 @app.route('/video_feed')
 def video_feed():
     #Video streaming route. Put this in the src attribute of an img tag
     return Response(gen_frames(camera), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-
+@app.route('/sendData', methods = ['POST'])
+def sendData():
+    print(userLoggedIn)
+    if not userLoggedIn:
+        return {"Status": "Failure", "Reasoning": "Not logged in"}
+    input_json = request.get_json(force=True)
+    print(input_json)
+    user = UserL(userCookie['username'], 'password', userCookie['email'])
+    user.addEmotionData(input_json['className'])
+    return {"Status": "Success"}
 
 @app.route("/accountInfo")
 def showAccountInfo():

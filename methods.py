@@ -61,7 +61,7 @@ class UserL(User):
 
     def addEmotionData(self, emotionalData):
         day = getFormattedDate()
-        key = "UserData." + day
+        key = "User Data." + day
         user_ref = db.collection(u'Users').document(self.username)
         userCheck = user_ref.get().to_dict()
 

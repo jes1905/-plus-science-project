@@ -194,23 +194,19 @@
             });
             }
 
-            async function processBtn(){
-                const response = await fetch("http://127.0.0.1:5000/testingRoute", {
-                        method : 'POST',
-                        mode : 'cors',
-                        cache : 'no-cache'}
-                )
-            }
+            {#async function processBtn(){#}
+            {#    const response = await fetch("http://127.0.0.1:5000/testingRoute", {#}
+            {#            method : 'POST',#}
+            {#            mode : 'cors',#}
+            {#            cache : 'no-cache'}#}
+            {#    )#}
+            {# } #}
 
-            let btn = document.getElementById("process");
-            btn.onclick = (e) => {
-                e.preventDeault();
-                processBtn();
-                let div = document.getElementById("response");
-                
-
-            }
-
-
+            {#let btn = document.getElementById("process");#}
+            {#btn.onclick = (e) => {#}
+            {#    e.preventDeault();#}
+            {#    processBtn();#}
+            {#    let div = document.getElementById("response");#}
+            {##}
         </script>
 {% endblock %}
