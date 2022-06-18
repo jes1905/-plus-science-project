@@ -1,89 +1,31 @@
-import json  
-from flask import Flask, request, make_response, jsonify, abort, render_template
-from flask_cors import CORS, cross_origin
-import firebase_admin
-from firebase_admin import credentials, firestore
-#import cv2
+from flask import Flask, request, make_response, jsonify, Response, render_template
+from flask_cors import CORS
+from http import cookies as Cookie
+from flask_bootstrap import Bootstrap
+from AI import detect_faces
+from AIMethods import *
+from methods import *
+
+
+camera = cv2.VideoCapture(0)
 
 #remeber to remove key
-
 app = Flask(__name__)
 
-
-def get_user(user):
-    user_ref = db.collection(u'User').document(user.username).get().to_dict()
-    if user_ref['Email'] == db.collection(u'User').document(user.EMAIL) and user_ref['Password'] == db.collection(u'User').document(user.password):
-        return True
-    else:
-        return False
-
-def makeDocument(self):
-    user_ref = db.collection(u'User')
-    user_ref = db.document(user.username).set(user.to_dict())
-    self.isLoggedIn = True
-    self.hasDocument = True        
-        
-#make a class function file
-class User(object):
-    def __init__(self,username,password,email):
-        self.username = username
-        self.password = password
-        #should stay constant
-        self.EMAIL = email
-        self.isLoggedIn = isLoggedIn #name error
-        self.hasDocument = get_user(self)
-        
-        
-        if self.isLoggedIn:
-            self.hasDocument = True if get_user(self) else self.makeDocument()
-        
-        else:
-            self.isLoggedIn = False
-
-    @staticmethod
-    def from_dict(source):
-        return User(source.username, source.password, source.email)
-
-    def to_dict(self):
-        return{
-            u'Username' : self.username,
-            u'Password' : self.password,
-            u'Email' : self.EMAIL 
-        }
-
-    
-
-
-    def __repr__(self):
-        return(
-            f'User(\
-                name={self.username}, \
-                password={self.password}, \
-                EMAIL={self.EMAIL}\
-                )'
-        )
-
-    def createUserDocument():
-        user = User(self.username,self.EMAIL,self. password)
-        createUserDocument(user.username,user.EMAIL,user.password)
-        
-        
-
-
-jade = User(u'jade1905', u'123456', u'jadesanche2005.com')
-
-
+userCookie = Cookie.SimpleCookie()
+sessionId = genSessionId()
+userCookie["session"] = sessionId
 CORS(app, resources=r'/api/*')
+userLoggedIn = False
 
-cred = credentials.Certificate("sign-in-mental-health-firebase-adminsdk-hk8d1-4267dcec2f.json")
-firebase_admin.initialize_app(cred)
-db = firestore.client()
-
-user_ref = db.collection(u'User').document(user.username).collection(u'User Data')
 
 @app.route('/')
 def hello_world():
-    return render_template('index.html')
+    return render_template('index.html', loggedIn = userLoggedIn)
+
+@app.route('/login')
+def loginSignUp():
+    return render_template('login.html')
 
 
 @app.errorhandler(404)
@@ -91,35 +33,94 @@ def not_found(error):
     return make_response(jsonify({'error': 'Not Founder L'}), 404)
 
 
-@app.route('/api/check_user', methods=["POST"])# gonna turn int the sign/log in page
-def get_user():
+
+def makeUserCookie(user):
+    userCookie["username"] = user.username
+    userCookie["email"] = user.EMAIL
+    global userLoggedIn
+    userLoggedIn = True
+
+
+def deleteUserCookie():
+    userCookie["username"] = ""
+    userCookie["email"] = ""
+    global userLoggedIn
+    userLoggedIn = False
+
+@app.route('/aiPage', methods=['GET','POST'])
+def testing():
+    return render_template("AIPage.html",result={},loggedIn = userLoggedIn)
+
+
+@app.route('/video_feed')
+def video_feed():
+    #Video streaming route. Put this in the src attribute of an img tag
+    return Response(gen_frames(camera), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/sendData', methods = ['POST'])
+def sendData():
+    print(userLoggedIn)
+    if not userLoggedIn:
+        return {"Status": "Failure", "Reasoning": "Not logged in"}
     input_json = request.get_json(force=True)
     print(input_json)
-    user = User(input_json['Username'], input_json['Password'], input_json['Email'])
-    user_ref = db.collection(u'User').document(user.username).get().to_dict()
-    if user_ref['Email'] == db.collection(u'User').document(user.EMAIL) and user_ref['Password'] == db.collection(u'User').document(user.password):
-        return{
-            "Status" : "Success",
-            "User"   : user_ref
-        }
+    user = UserL(userCookie['username'].value, 'password', userCookie['email'].value)
+    user.addEmotionData(input_json['className'])
+    return {"Status": "Success"}
+
+@app.route("/accountInfo")
+def showAccountInfo():
+    if not userLoggedIn:
+        return render_template('login.html')
+    else:
+        user = UserL(userCookie['username'].value,'password',userCookie['email'].value)
+
+
+@app.route('/createUser',methods=["POST"])
+def make_user():
+    input_json = request.get_json(force=True)
+    user = UserL(input_json['username'], input_json['password'],input_json['email'])
+    user.makeDocument()
+    makeUserCookie(user)
+    global userLoggedIn
+    userLoggedIn = True
+    return {
+        "Status" : "Success"
+    }
+
+@app.route('/logout')
+def loggout():
+    deleteUserCookie()
+    return render_template("index.html",loggedIn = userLoggedIn)
+
+@app.route('/loginUser', methods=["POST"])# gonna turn int the sign/log in page
+def get_user():
+    input_json = request.get_json(force=True)
+    user = User(input_json['username'], input_json['password'],"email")
+    user_ref = db.collection(u'Users').document(user.username).get()
+    if user_ref.exists:
+        user_ref = user_ref.to_dict()
+        user.email = user_ref['email']
+        if user_ref['password'] == user.password:
+            global userLoggedIn
+            userLoggedIn = True
+            makeUserCookie(user)
+            return{
+                "Status" : "Success",
+                "User"   : user_ref
+            }
+        else:
+            return {
+                "Status": "Failure",
+                "User": user.to_dict()
+            }
     else:
         return {
-            "Status" : "Success",
+            "Status" : "Failure",
             "User"   : user.to_dict()
         }    
         
-        
-    #   
 
-@app.route('/user_data')
-def user_data():
-    #user = User(u'Username', u'')
-    return user_ref
-
-
-
-#@app.route('/health_diagnosis')
-#def health_diagnosis(): 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

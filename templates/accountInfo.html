@@ -1,6 +1,6 @@
-{%  extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block title %} Home {% endblock %}
+{% block title %} Account Info {% endblock %}
 
 {%  block logIn%}
     {% if  loggedIn  %}
@@ -27,11 +27,3 @@
 {% endblock %}
 
 
-{% block content %}
-<body>
-    <h1>Welcome !</h1>
-    <h5>Emotion AI uses a model train through teachable machines to predict the mood you are in.</h5>
-    <h5>If you log in you will be able to store and track your emotion data and see how you've felt throughout the past months</h5>
-
-</body>
-{% endblock %}
