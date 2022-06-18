@@ -78,8 +78,9 @@
 
         // append elements to the DOM
         if (hadFirstLoad)
-            document.getElementById("webcam-container").removeChild(webcam.canvas);
-        document.getElementById("webcam-container").appendChild(webcam.canvas);
+            document.getElementById("webcam-container").removeChild(document.querySelector(".cam"));
+        cam = document.getElementById("webcam-container").appendChild(webcam.canvas);
+        cam.className =  "cam"
         labelContainer = document.getElementById("label-container");
         for (let i = 0; i < maxPredictions; i++) { // and class labels
             labelContainer.appendChild(document.createElement("div"));
@@ -124,7 +125,6 @@
     async function sendData(data){
          const response = await fetch("/sendData", {
                         method : 'POST',
-                        mode : 'cors',
                         cache : 'no-cache',
                         body : JSON.stringify(data)
          })

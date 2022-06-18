@@ -64,7 +64,7 @@ def sendData():
         return {"Status": "Failure", "Reasoning": "Not logged in"}
     input_json = request.get_json(force=True)
     print(input_json)
-    user = UserL(userCookie['username'], 'password', userCookie['email'])
+    user = UserL(userCookie['username'].value, 'password', userCookie['email'].value)
     user.addEmotionData(input_json['className'])
     return {"Status": "Success"}
 
@@ -73,7 +73,7 @@ def showAccountInfo():
     if not userLoggedIn:
         return render_template('login.html')
     else:
-        user = UserL(userCookie['username'],'password',userCookie['email'])
+        user = UserL(userCookie['username'].value,'password',userCookie['email'].value)
 
 
 @app.route('/createUser',methods=["POST"])
