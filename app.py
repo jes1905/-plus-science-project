@@ -13,7 +13,7 @@ camera = cv2.VideoCapture(0)
 
 app = Flask(__name__)
 
-userCookie = Cookie.SimpleCookie();
+userCookie = Cookie.SimpleCookie()
 sessionId = genSessionId()
 userCookie["session"] = sessionId
 CORS(app, resources=r'/api/*')
