@@ -1,122 +1,23 @@
-import json  
-from flask import Flask, request, make_response, jsonify, abort, render_template
-from flask_cors import CORS, cross_origin
-import firebase_admin
-from firebase_admin import credentials, firestore
-from random import randint
+from flask import Flask, request, make_response, jsonify, Response, render_template
+from flask_cors import CORS
 from http import cookies as Cookie
-from datetime import date
 from flask_bootstrap import Bootstrap
-import cv2
+from AI import detect_faces
+from AIMethods import *
+from methods import *
+
+
+camera = cv2.VideoCapture(0)
 
 #remeber to remove key
 
 app = Flask(__name__)
-def getUser(user):
-    userref = db.collection(u'Users').document(user.username).get()
-    if userref.exists:
-        if userref['email'] == user.EMAIL:
-            return True
-        else:
-            return False
-    else:
-        return False
-
-        
-#make a class function file
-class User(object):
-    def __init__(self,username,password,email):
-        self.username = username
-        self.password = password
-        #should stay constant
-        self.EMAIL = email
-
-    @staticmethod
-    def from_dict(source):
-        return User(source.username, source.password, source.email)
-
-    # def makeDocument(self):
-    #     user_ref = db.collection(u'User')
-    #     user_ref = db.document(self.username).set(self.to_dict())
-    #     self.isLoggedIn = True
-    #     self.hasDocument = True
-
-    def to_dict(self):
-        return{
-            u'username' : self.username,
-            u'password' : self.password,
-            u'email' : self.EMAIL
-        }
-
-    
-
-
-    def __repr__(self):
-        return(
-            f'User(\
-                name={self.username}, \
-                password={self.password}, \
-                EMAIL={self.EMAIL}\
-                )'
-        )
-
-class UserL(User):
-    def __init__(self, username, password,email):
-        super().__init__(username,password,email)
-        self.hasDocument = getUser(self)
-
-    def addEmotionData(self,emotionalData):
-        day = getFormattedDate()
-        key = "UserData." + day
-        user_ref = db.collection(u'Users').document(self.username)
-        userCheck = user_ref.get().to_dict()
-
-        if not userCheck['UserData'].has_key(day):
-            user_ref.update({
-            key : [emotionalData]
-                    })
-        else:
-            user_ref.update({
-                key : firestore.ArrayUnion([emotionalData])
-            })
-
-    def makeDocument(self):
-        if not getUser(self):
-            user_ref = db.collection(u'Users')
-            tempDict = self.to_dict()
-            tempDict['UserData'] = {}
-            user_ref = user_ref.document(self.username).set(tempDict)
-            self.hasDocument = True
-    def getData(self):
-        return db.collection(u'Users').document(self.username).get().to_dict()
-
-def getFormattedDate():
-    fmtStr = "Data of day: "
-    day = date.today()
-    fmtStr += day
-    return fmtStr
-
-def getFormattedDateStr(m,d,y):
-    fmtStr = "Data of day: "
-    day = str(y)+"-"+str(m)+"-"+d
-    fmtStr += day
-    return fmtStr
-
-
-def genSessionId():
-    sesStr = ""
-    for i in range(1,30):
-        sesStr += str(randint(0,randint(10,20*i)))
-    return sesStr
 
 userCookie = Cookie.SimpleCookie();
 sessionId = genSessionId()
 userCookie["session"] = sessionId
 CORS(app, resources=r'/api/*')
 userLoggedIn = False
-cred = credentials.Certificate("key/sign-in-mental-health-firebase-adminsdk-hk8d1-ea5dda61b3.json")
-firebase_admin.initialize_app(cred)
-db = firestore.client()
 
 
 
@@ -147,6 +48,21 @@ def deleteUserCookie():
     userCookie["email"] = ""
     global userLoggedIn
     userLoggedIn = False
+
+@app.route('/testingRoute', methods=['GET','POST'])
+def testing():
+    if request.method == 'GET':
+        return render_template("AIPage.html",result={},loggedIn = userLoggedIn)
+    else:
+        data = detect_faces(getFrame(camera))
+        return data #,loggedIn = userLoggedIn)
+
+@app.route('/video_feed')
+def video_feed():
+    #Video streaming route. Put this in the src attribute of an img tag
+    return Response(gen_frames(camera), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
 
 @app.route("/accountInfo")
 def showAccountInfo():

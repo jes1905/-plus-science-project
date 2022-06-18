@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %} AI Page {% endblock %}
+
+{%  block logIn%}
+    {% if  loggedIn  %}
+        Logout
+    {% else %}
+        Login/Sign up
+    {% endif %}
+{% endblock %}
+
+{%  block logOrAccRoute %}
+    {% if  loggedIn  %}
+        {{ "/logout" }}
+    {% else %}
+        {{ "/login" }}
+    {% endif %}
+{% endblock %}
+
+{% block showAcc %}
+    {% if loggedIn %}
+        {{ "nav-link"}}
+    {% else %}
+        {{"nav-link disabled"}}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <h1>Welcome to the AI Page</h1>
+    <h4>See yourself here !</h4>
+    <img src="/video_feed" alt="" class="cam">
+    <form action="/testingRoute" method="post">
+        <button id="process" name="proccess" type="submit">Process Photo!</button>
+    <div id="response">
+
+    </div>
+   {% for i in range(result['faces']|length) %}
+        <h1> Results for face {{i}}</h1>
+        <h3>Anger: {{result['faces'][i]['anger']}}</h3>
+        <h3>Joy: {{result['faces'][i]['joy']}}</h3>
+        <h3>Surprise: {{result['faces'][i]['surprise']}}</h3>
+    {% endfor %}
+    </form>
+{% endblock %}
