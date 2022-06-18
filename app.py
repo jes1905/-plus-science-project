@@ -119,9 +119,7 @@ def user_data():
 
 
 #@app.route('/health_diagnosis')
-#def health_diagnosis():
-    
-     
+#def health_diagnosis(): 
 
 if __name__ == '__main__':
     app.run()
