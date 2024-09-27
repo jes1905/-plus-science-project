@@ -2,12 +2,8 @@ from flask import Flask, request, make_response, jsonify, Response, render_templ
 from flask_cors import CORS
 from http import cookies as Cookie
 from flask_bootstrap import Bootstrap
-from AI import detect_faces
-from AIMethods import *
 from methods import *
 
-
-camera = cv2.VideoCapture(0)
 
 #remeber to remove key
 app = Flask(__name__)
@@ -52,11 +48,6 @@ def testing():
     return render_template("AIPage.html",result={},loggedIn = userLoggedIn)
 
 
-@app.route('/video_feed')
-def video_feed():
-    #Video streaming route. Put this in the src attribute of an img tag
-    return Response(gen_frames(camera), mimetype='multipart/x-mixed-replace; boundary=frame')
-
 @app.route('/sendData', methods = ['POST'])
 def sendData():
     print(userLoggedIn)
@@ -87,6 +78,28 @@ def make_user():
     return {
         "Status" : "Success"
     }
+
+
+
+# @app.route('/user_data')
+# def user_data():
+#     d = datetime.now()
+#     month = d.monthdays = d.dayyear = d.year
+#     today = getDayOfWeek(month,days,year)
+#     these variables are at the top of the file
+#     count = days
+#     if(today != "Monday"):
+#     while today != "Monday":
+#     count-= 1
+#     today = getDayOfWeek(month,count,year)
+#     date = "Week of: " + month + "-" + count + "-" + year
+#     data= db.collection("User").document(user.username).collection("User Data").document(date).get().to_dict()
+#     return data
+
+
+
+
+
 
 @app.route('/logout')
 def loggout():
